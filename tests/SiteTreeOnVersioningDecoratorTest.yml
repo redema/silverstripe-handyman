@@ -1,0 +1,19 @@
+SiteTreeOnVersioningDecoratorTest_TestPage:
+	testpage1:
+		Title: TestPage1
+		URLSegment: testpage1
+
+SiteTreeOnVersioningDecoratorTest_Test:
+	tester1:
+		Title: tester1
+		PageID: =>SiteTreeOnVersioningDecoratorTest_TestPage.testpage1
+	tester2:
+		Title: tester2
+		PageID: =>SiteTreeOnVersioningDecoratorTest_TestPage.testpage1
+
+SiteTreeOnVersioningDecoratorTest_TestExtended:
+	tester3:
+		Title: tester3
+		More: more3
+		PageID: =>SiteTreeOnVersioningDecoratorTest_TestPage.testpage1
+
