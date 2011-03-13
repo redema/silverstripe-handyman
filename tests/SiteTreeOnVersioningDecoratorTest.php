@@ -38,20 +38,20 @@ class SiteTreeOnVersioningDecoratorTest extends SapphireTest {
 	
 	public function testPublishAndUnpublishWithUpdatableRelations() {
 		$testPage = DataObject::get_one('SiteTreeOnVersioningDecoratorTest_TestPage', "\"URLSegment\" = 'testpage1'");
-		$this->assertType('SiteTreeOnVersioningDecoratorTest_TestPage', $testPage);
+		$this->assertInstanceOf('SiteTreeOnVersioningDecoratorTest_TestPage', $testPage);
 		
 		$tests = $testPage->Tests();
-		$this->assertType('DataObjectSet', $tests);
+		$this->assertInstanceOf('DataObjectSet', $tests);
 		$this->assertEquals(3, $tests->TotalItems());
 		
 		$testPage->doPublish();
 		
 		$tests = Versioned::get_by_stage('SiteTreeOnVersioningDecoratorTest_Test', 'Live');
-		$this->assertType('DataObjectSet', $tests);
+		$this->assertInstanceOf('DataObjectSet', $tests);
 		$this->assertEquals(3, $tests->TotalItems());
 		
 		$testPage = DataObject::get_one('SiteTreeOnVersioningDecoratorTest_TestPage', "\"URLSegment\" = 'testpage1'");
-		$this->assertType('SiteTreeOnVersioningDecoratorTest_TestPage', $testPage);
+		$this->assertInstanceOf('SiteTreeOnVersioningDecoratorTest_TestPage', $testPage);
 		$testPage->doUnpublish();
 		$tests = Versioned::get_by_stage('SiteTreeOnVersioningDecoratorTest_Test', 'Live');
 		$this->assertFalse((bool)$tests);

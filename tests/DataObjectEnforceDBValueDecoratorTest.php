@@ -53,7 +53,7 @@ class DataObjectEnforceDBValueDecoratorTest extends SapphireTest {
 			$fields = singleton('DataObjectEnforceDBValueDecoratorTest_Test')->$fieldMethod();
 			foreach (array('Field1', 'Field2') as $field) {
 				$field = $fields->dataFieldByName($field);
-				$this->assertType('FormField', $field);
+				$this->assertInstanceOf('FormField', $field);
 				$this->assertTrue($field->isReadonly());
 			}
 		}
