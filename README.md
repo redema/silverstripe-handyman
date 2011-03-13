@@ -50,7 +50,7 @@ All fields with enforced values are transformed to readonly in getCMSFields()
 and getFrontEndFields().
 
 ### Automatically handle publishing and unpublishing of Versioned DataObjects
-connected to SiteTree, or a subclass to it, through a has_one relation
+### connected to SiteTree, or a subclass to it, through a has_one relation
 
 SiteTreeOnVersioningDecorator makes it easier to handle versioned DataObjects
 related to SiteTree or subclasses to it through a has_one relation. It will make
