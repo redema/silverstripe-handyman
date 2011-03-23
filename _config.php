@@ -34,4 +34,5 @@ Object::add_extension('DataObject', 'DataObjectEnforceDBValueDecorator');
 Object::add_extension('Controller', 'SSViewerCacheBlockCleanerExtension');
 Object::add_extension('Page', 'SiteTreeOnVersioningDecorator');
 Object::add_extension('Page_Controller', 'Page_Controlleri18nExtension');
+Object::add_extension('Page_Controller', 'Page_ControllerTemplateUtilsExtension');
 

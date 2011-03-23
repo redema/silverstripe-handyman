@@ -45,3 +45,39 @@ class Page_Controlleri18nExtension extends Extension {
 	
 }
 
+/**
+ * <h1>Summary</h1>
+ * 
+ * A collection of methods often needed in templates.
+ */
+class Page_ControllerTemplateUtilsExtension extends Extension {
+	
+	/**
+	 * Get the current environment type from Director.
+	 * 
+	 * @return string
+	 */
+	public function EnvironmentType() {
+		return Director::get_environment_type();
+	}
+	
+	/**
+	 * A cache key suitable for partial template caching of
+	 * menus. The key is unique for the current page but depends
+	 * on the current Versioned stage, all other Pages and the
+	 * SiteConfigs.
+	 * 
+	 * @return string
+	 */
+	public function PageCacheKey() {
+		return implode(':', array(
+			$this->owner->data()->ID,
+			$this->owner->data()->Link(),
+			$this->owner->data()->cacheKeyComponent(),
+			$this->owner->data()->Aggregate('Page')->Max('LastEdited'),
+			$this->owner->data()->Aggregate('SiteConfig')->Max('LastEdited')
+		));
+	}
+	
+}
+
