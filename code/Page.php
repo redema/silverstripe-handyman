@@ -61,6 +61,8 @@ class Page_ControllerTemplateUtilsExtension extends Extension {
 		return Director::get_environment_type();
 	}
 	
+	private $pageCacheKeyCache = null;
+	
 	/**
 	 * A cache key suitable for partial template caching of
 	 * menus. The key is unique for the current page but depends
@@ -70,13 +72,20 @@ class Page_ControllerTemplateUtilsExtension extends Extension {
 	 * @return string
 	 */
 	public function PageCacheKey() {
-		return implode(':', array(
-			$this->owner->data()->ID,
-			$this->owner->data()->Link(),
-			$this->owner->data()->cacheKeyComponent(),
-			$this->owner->data()->Aggregate('Page')->Max('LastEdited'),
-			$this->owner->data()->Aggregate('SiteConfig')->Max('LastEdited')
-		));
+		if (!$this->pageCacheKeyCache) {
+			$this->pageCacheKeyCache = implode(':', array(
+				$this->owner->data()->ID,
+				$this->owner->data()->Link(),
+				$this->owner->data()->cacheKeyComponent(),
+				$this->owner->data()->Aggregate('Page')->Max('LastEdited'),
+				$this->owner->data()->Aggregate('SiteConfig')->Max('LastEdited')
+			));
+		}
+		return $this->pageCacheKeyCache;
+	}
+	
+	public function flushCache() {
+		$this->pageCacheKeyCache = null;
 	}
 	
 }
