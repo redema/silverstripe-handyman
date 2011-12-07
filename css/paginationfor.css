@@ -1,0 +1,11 @@
+
+.Pagination .Prev,
+.Pagination .Next { display: block; float: left; width: 25%; }
+.Pagination .Prev { text-align: left; }
+.Pagination .Next { text-align: right; }
+.Pagination .List { display: block; float: left; width: 50%; }
+.Pagination .Inner { display: block; padding: 2px; }
+.Pagination .List .link { font-weight: normal; }
+.Pagination .List .current { font-weight: bold; text-decoration: underline; }
+.Pagination .Clear { display: block; clear: both; }
+

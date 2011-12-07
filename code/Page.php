@@ -61,6 +61,20 @@ class Page_ControllerTemplateUtilsExtension extends Extension {
 		return Director::get_environment_type();
 	}
 	
+	/**
+	 * Helper for rendering the html required for pagination.
+	 * 
+	 * @return string $name
+	 * 
+	 * return string
+	 */
+	public function PaginationFor($name) {
+		Requirements::themedCSS('paginationfor');
+		return $this->owner->customise(array(
+			'Items' => $this->owner->$name()
+		))->renderWith(array('PaginationFor'));
+	}
+	
 	private $pageCacheKeyCache = null;
 	
 	/**
