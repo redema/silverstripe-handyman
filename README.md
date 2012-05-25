@@ -5,9 +5,9 @@ and Sapphire which helps developers to perform common tasks and workarounds.
 
 ## Maintainer Contact
 
-Charden Reklam (charden) <http://charden.se/>
+Redema AB <http://redema.se/>
 
-Author: Erik Edlund <erik@charden.se>
+Author: Erik Edlund <erik.edlund@redema.se>
 
 ## Requirements
 
@@ -29,19 +29,19 @@ Author: Erik Edlund <erik@charden.se>
 DataObjectEnforceDBValueDecorator makes it possible to enforce values for
 DataObject db fields. How it works is most easily demonstrated by an example:
 
-    class Example extends DataObject {
-        public static $db = array(
-            'Field1' => 'Text',
-            'Field2' => 'Int'
-        );
-        public static $enforce_db_value = array(
-            'Field1' => 'StaticValue',
-            'Field2' => '->getField2DynamicValue'
-        );
-        public function getField2DynamicValue() {
-            return 1 + 1;
+        class Example extends DataObject {
+            public static $db = array(
+                'Field1' => 'Text',
+                'Field2' => 'Int'
+            );
+            public static $enforce_db_value = array(
+                'Field1' => 'StaticValue',
+                'Field2' => '->getField2DynamicValue'
+            );
+            public function getField2DynamicValue() {
+                return 1 + 1;
+            }
         }
-    }
 
 Field1 and Field2 of Example will always be assigned the values determined by
 the $enforce_db_value array on the onBeforeWrite-event for Example objects.
@@ -57,23 +57,23 @@ related to SiteTree or subclasses to it through a has_one relation. It will make
 sure that the versioned DataObjects are published and unpublished automatically
 when their referenced SiteTree is.
 
-    class Page extends SiteTree {
-        public static $has_many = array(
-            'Quotes' => 'Quote'
-        );
-    }
+        class Page extends SiteTree {
+            public static $has_many = array(
+                'Quotes' => 'Quote'
+            );
+        }
     
-    class Quote extends DataObject {
-        public static $has_one = array(
-            'Page' => 'Page'
-        );
-        public static $has_one_on_versioning = array(
-            'Page' => true
-        );
-        public static $extensions = array(
-            "Versioned('Stage', 'Live')"
-        );
-    }
+        class Quote extends DataObject {
+            public static $has_one = array(
+                'Page' => 'Page'
+            );
+            public static $has_one_on_versioning = array(
+                'Page' => true
+            );
+            public static $extensions = array(
+                "Versioned('Stage', 'Live')"
+            );
+        }
 
 In the above example, all Qoutes for a Page will be published and unpublished
 when the page is. Due to limitations in SilverStripes Versioned decorator
