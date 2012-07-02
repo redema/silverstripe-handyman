@@ -30,14 +30,27 @@
  */
 
 /**
+ * FIXME: This is ugly. Rewrite when there is time to do so.
  */
-class SiteTreeOnVersioningDecoratorTest extends SapphireTest {
+class DataObjectOnVersioningDecoratorTest extends SapphireTest {
 	
-	public static $fixture_file = 'handyman/tests/SiteTreeOnVersioningDecoratorTest.yml';
+	public static $fixture_file = 'handyman/tests/DataObjectOnVersioningDecoratorTest.yml';
+	
+	protected function assertDataObjectsOnStage($class, $number, $stage = 'Live') {
+		$objects = Versioned::get_by_stage($class, $stage);
+		if (!$number) {
+			$this->assertEmpty($objects);
+		} else {
+			$this->assertInstanceOf('DataObjectSet', $objects);
+			$this->assertEquals($number, $objects->TotalItems());
+		}
+	}
 	
 	public function testPublishAndUnpublishWithUpdatableRelations() {
-		$testPage = DataObject::get_one('SiteTreeOnVersioningDecoratorTest_TestPage', "\"URLSegment\" = 'testpage1'");
-		$this->assertInstanceOf('SiteTreeOnVersioningDecoratorTest_TestPage', $testPage);
+		$testPage = DataObject::get_one('DataObjectOnVersioningDecoratorTest_TestPage',
+			"\"URLSegment\" = 'testpage1'");
+		$this->assertInstanceOf('DataObjectOnVersioningDecoratorTest_TestPage',
+			$testPage);
 		
 		$tests = $testPage->Tests();
 		$this->assertInstanceOf('DataObjectSet', $tests);
@@ -45,35 +58,37 @@ class SiteTreeOnVersioningDecoratorTest extends SapphireTest {
 		
 		$testPage->doPublish();
 		
-		$tests = Versioned::get_by_stage('SiteTreeOnVersioningDecoratorTest_Test', 'Live');
-		$this->assertInstanceOf('DataObjectSet', $tests);
-		$this->assertEquals(3, $tests->TotalItems());
+		$this->assertDataObjectsOnStage('DataObjectOnVersioningDecoratorTest_Test', 3);
+		$this->assertDataObjectsOnStage('DataObjectOnVersioningDecoratorTest_IndirectTest', 2);
 		
-		$testPage = DataObject::get_one('SiteTreeOnVersioningDecoratorTest_TestPage', "\"URLSegment\" = 'testpage1'");
-		$this->assertInstanceOf('SiteTreeOnVersioningDecoratorTest_TestPage', $testPage);
 		$testPage->doUnpublish();
-		$tests = Versioned::get_by_stage('SiteTreeOnVersioningDecoratorTest_Test', 'Live');
-		$this->assertFalse((bool)$tests);
+		
+		$this->assertDataObjectsOnStage('DataObjectOnVersioningDecoratorTest_Test', 0);
+		$this->assertDataObjectsOnStage('DataObjectOnVersioningDecoratorTest_IndirectTest', 0);
 	}
 	
 }
 
-class SiteTreeOnVersioningDecoratorTest_TestPage extends Page {
+class DataObjectOnVersioningDecoratorTest_TestPage extends Page {
 	
 	public static $has_many = array(
-		'Tests' => 'SiteTreeOnVersioningDecoratorTest_Test'
+		'Tests' => 'DataObjectOnVersioningDecoratorTest_Test'
 	);
 	
 }
 
-class SiteTreeOnVersioningDecoratorTest_Test extends DataObject {
+class DataObjectOnVersioningDecoratorTest_Test extends DataObject {
 	
 	public static $db = array(
 		'Title' => 'Text'
 	);
 	
 	public static $has_one = array(
-		'Page' => 'SiteTreeOnVersioningDecoratorTest_TestPage'
+		'Page' => 'DataObjectOnVersioningDecoratorTest_TestPage'
+	);
+	
+	public static $has_many = array(
+		'IndirectTests' => 'DataObjectOnVersioningDecoratorTest_IndirectTest'
 	);
 	
 	public static $has_one_on_versioning = array(
@@ -81,15 +96,39 @@ class SiteTreeOnVersioningDecoratorTest_Test extends DataObject {
 	);
 	
 	public static $extensions = array(
+		'DataObjectOnVersioningDecorator',
+		'DataObjectVersionedMethodDecorator',
 		"Versioned('Stage', 'Live')"
 	);
 	
 }
 
-class SiteTreeOnVersioningDecoratorTest_TestExtended extends SiteTreeOnVersioningDecoratorTest_Test {
+class DataObjectOnVersioningDecoratorTest_TestExtended extends DataObjectOnVersioningDecoratorTest_Test {
 	
 	public static $db = array(
 		'More' => 'Text'
+	);
+	
+}
+
+class DataObjectOnVersioningDecoratorTest_IndirectTest extends DataObject {
+	
+	public static $db = array(
+		'Title' => 'Text'
+	);
+	
+	public static $has_one = array(
+		'Parent' => 'DataObjectOnVersioningDecoratorTest_Test'
+	);
+	
+	public static $has_one_on_versioning = array(
+		'Parent' => true
+	);
+	
+	public static $extensions = array(
+		'DataObjectOnVersioningDecorator',
+		'DataObjectVersionedMethodDecorator',
+		"Versioned('Stage', 'Live')"
 	);
 	
 }

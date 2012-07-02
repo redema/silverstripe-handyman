@@ -1,0 +1,28 @@
+DataObjectOnVersioningDecoratorTest_TestPage:
+	testpage1:
+		Title: TestPage1
+		URLSegment: testpage1
+
+DataObjectOnVersioningDecoratorTest_Test:
+	tester1:
+		Title: tester1
+		PageID: =>DataObjectOnVersioningDecoratorTest_TestPage.testpage1
+	tester2:
+		Title: tester2
+		PageID: =>DataObjectOnVersioningDecoratorTest_TestPage.testpage1
+
+DataObjectOnVersioningDecoratorTest_TestExtended:
+	tester3:
+		Title: tester3
+		More: more3
+		PageID: =>DataObjectOnVersioningDecoratorTest_TestPage.testpage1
+
+
+DataObjectOnVersioningDecoratorTest_IndirectTest:
+	tester4:
+		Title: tester4
+		ParentID: =>DataObjectOnVersioningDecoratorTest_Test.tester1
+	tester5:
+		Title: tester5
+		ParentID: =>DataObjectOnVersioningDecoratorTest_Test.tester1
+

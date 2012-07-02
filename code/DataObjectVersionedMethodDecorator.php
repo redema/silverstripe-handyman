@@ -29,11 +29,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-Object::add_extension('DataObject', 'DataObjectEnforceDBValueDecorator');
-Object::add_extension('Controller', 'SSViewerCacheBlockCleanerExtension');
-Object::add_extension('Page', 'DataObjectOnVersioningDecorator');
-Object::add_extension('Page_Controller', 'Page_Controlleri18nExtension');
-Object::add_extension('Page_Controller', 'Page_ControllerTemplateUtilsExtension');
-
-Member::lock_out_after_incorrect_logins(3);
+class DataObjectVersionedMethodDecorator extends DataObjectDecorator {
+	
+	public function doPublish() {
+		if ($this->owner->hasMethod('canPublish') &&
+				!$this->owner->canPublish())
+			return false;
+		
+		$original = Versioned::get_one_by_stage($this->owner->ClassName, 'Live',
+			"\"{$this->owner->ClassName}\".\"ID\" = {$this->owner->ID}");
+		$original = $original? $original: new $this->owner->ClassName;
+		$this->owner->invokeWithExtensions('onBeforePublish', $original);
+		$this->owner->publish('Stage', 'Live');
+		$this->owner->invokeWithExtensions('onAfterPublish', $original);
+		
+		return true;
+	}
+	
+	public function doUnpublish() {
+		if ($this->owner->hasMethod('canDeleteFromLive') &&
+				!$this->owner->canDeleteFromLive())
+			return false;
+		
+		$this->owner->invokeWithExtensions('onBeforeUnpublish');
+		$this->owner->deleteFromStage('Live');
+		$this->owner->invokeWithExtensions('onAfterUnpublish');
+		
+		return true;
+	}
+}
 

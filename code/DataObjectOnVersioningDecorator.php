@@ -32,13 +32,21 @@
 /**
  * <h1>Summary</h1>
  * 
- * Uses SiteTree's onAfterPublish()/onAfterUnpublish() hooks
- * to provide automatic publishing/unpublishing for versioned
- * DataObjects connected to the SiteTree through a has_one-
- * relation. Due to Versioned limitations, only the stages
- * "Stage" and "Live" are supported.
+ * Uses the onAfterPublish()/onAfterUnpublish() hooks to
+ * provide automatic publishing/unpublishing for versioned
+ * DataObjects connected to the handled object through a
+ * has_one relation.
+ * 
+ * It is primarly intended to be used with SiteTree and its
+ * descendants, but can be used with other Versioned DataObjects
+ * if they call onAfterPublish() and onAfterUnpublish() for
+ * its extensions when appropriate. It is possible to use
+ * DataObjectVersionedMethodDecorator to easily achieve this.
+ * 
+ * Due to Versioned limitations, only the stages "Stage" and
+ * "Live" are supported.
  */
-class SiteTreeOnVersioningDecorator extends SiteTreeDecorator {
+class DataObjectOnVersioningDecorator extends DataObjectDecorator {
 	
 	/**
 	 * Collect all components (has_one/has_many/many_many) from
@@ -87,35 +95,48 @@ class SiteTreeOnVersioningDecorator extends SiteTreeDecorator {
 	}
 	
 	/**
-	 * Hook into SiteTree::doPublish().
+	 * Hook into $this->owner->doPublish().
 	 */
 	public function onAfterPublish() {
-		$fromStage = 'Stage';
-		$toStage = 'Live';
 		foreach ($this->updatableRelations() as $relationName => $relationData) {
 			list($class, $field) = $relationData;
-			$liveDataObjects = Versioned::get_by_stage($class, $toStage,
+			$liveDataObjects = Versioned::get_by_stage($class, 'Live',
 				"\"{$class}\".\"{$field}ID\" = {$this->owner->ID}");
 			if ($liveDataObjects) foreach ($liveDataObjects as $object) {
-				$object->deleteFromStage($toStage);
+				$object->deleteFromStage('Live');
 			}
 			$stageDataObjects = $this->owner->$relationName();
 			if ($stageDataObjects) foreach ($stageDataObjects as $object) {
-				$object->publish($fromStage, $toStage);
+				if ($object->hasMethod('doPublish')) {
+					$object->doPublish();
+				} else {
+					$canPublishMethod = $object->hasMethod('canPublish');
+					if (!$canPublishMethod || ($canPublishMethod &&
+							$object->canPublish()))
+						$object->publish('Stage', 'Live');
+				}
 			}
 		}
 	}
 	
 	/**
-	 * Hook into SiteTree::doUnpublish().
+	 * Hook into $this->owner->doUnpublish().
 	 */
 	public function onAfterUnpublish() {
 		foreach ($this->updatableRelations() as $relationName => $relationData) {
 			list($class, $field) = $relationData;
+			$ID = $this->owner->ID? $this->owner->ID: $this->owner->OldID;
 			$dataObjects = Versioned::get_by_stage($class, 'Live',
-				"\"{$class}\".\"{$field}ID\" = {$this->owner->ID}");
+				"\"{$class}\".\"{$field}ID\" = {$ID}");
 			if ($dataObjects) foreach ($dataObjects as $object) {
-				$object->deleteFromStage('Live');
+				if ($object->hasMethod('doUnpublish')) {
+					$object->doUnpublish();
+				} else {
+					$canDeleteFromLiveMethod = $object->hasMethod('canDeleteFromLive');
+					if (!$canDeleteFromLiveMethod || ($canDeleteFromLiveMethod &&
+							$object->canDeleteFromLive()))
+						$object->deleteFromStage('Live');
+				}
 			}
 		}
 	}
